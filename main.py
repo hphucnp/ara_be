@@ -149,7 +149,7 @@ def get_audio(audio: UploadFile, question_prompt: Optional[str] = None):
             contents = (
                 "Dear Recruiters,\n"
                 "I hope this email finds you well.\n"
-                f"At {datetime.now().strftime('%M:%H %d/%m/%Y')}, your candidate has done the English Competency "
+                f"At {datetime.now().strftime('%H:%M %d/%m/%Y')}, your candidate has done the English Competency "
                 f"Test.\nHence, I am writing to inform you that the English proficiency score has been received.\n"
                 f"Their score is {resp['overall']}, which is considered to be {resp['level']}.\n"
                 "Thank you for your time and consideration.\n"
