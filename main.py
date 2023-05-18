@@ -1,6 +1,7 @@
 import email
 import smtplib
 from datetime import datetime
+from typing import Optional
 
 from fastapi import FastAPI, UploadFile
 import time
@@ -29,7 +30,7 @@ app.add_middleware(
 
 
 @app.post("/api/v1/audio")
-def get_audio(audio: UploadFile, question_prompt: str):
+def get_audio(audio: UploadFile, question_prompt: Optional[str] = None):
     resp = {}
 
     try:
