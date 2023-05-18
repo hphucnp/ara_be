@@ -32,7 +32,7 @@ def get_audio(audio: UploadFile, question_prompt: str):
         coreType = "speak.eval.pro"  # Change the coreType according to your needs.
         test_type = "ielts"  # Change the test_type according to your needs.
         task_type = "ielts_part1"  # Change the task_type according to your needs.
-        audioType = "mp3"  # Change the audio type corresponding to the audio file.
+        audioType = audio.filename.split(".")[1]
         # question_prompt="What did ben do yesterday?" # Change the question_prompt according to your needs.
         audioSampleRate = 16000
         userId = "guest"
