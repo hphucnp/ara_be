@@ -123,18 +123,23 @@ def get_audio(audio: UploadFile, question_prompt: Optional[str] = None):
         headers = {"Request-Index": "0"}
         files = {"audio": open(audio.filename, 'rb')}
         resp_json = requests.post(url, data=data, headers=headers, files=files).json()
-        resp["overall"] = min(resp_json["result"]["overall"] + 2, 10)
         resp["fluency_coherence"] = min(resp_json["result"]["fluency_coherence"] + 2, 10)
         resp["lexical_resource"] = min(resp_json["result"]["lexical_resource"] + 2, 10)
         resp["grammar"] = min(resp_json["result"]["grammar"] + 2, 10)
         resp["pronunciation"] = min(resp_json["result"]["pronunciation"] + 2, 10)
+        if (resp["fluency_coherence"] == resp["lexical_resource"]) and\
+            (resp["grammar"] == resp["lexical_resource"]) and\
+            (resp["lexical_resource"] == resp["pronunciation"]):
+            resp["fluency_coherence"] -= 1
+            resp["pronunciation"] -= 1
+        resp["overall"] = (resp["fluency_coherence"] + resp["lexical_resource"] + resp["grammar"] + resp["pronunciation"]) / 4
         overall = resp["overall"]
         level = 'FAILED'
-        if overall > 7:
+        if overall >= 7:
             level = 'ADVANCED'
-        elif overall > 5:
+        elif overall >= 5:
             level = 'INTERMEDIATE'
-        elif overall > 4:
+        elif overall >= 4:
             level = 'BASIC'
 
         resp["level"] = level
