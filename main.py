@@ -8,13 +8,30 @@ import hashlib
 import requests
 import json
 import yagmail
+from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:5173",
+    "http://127.0.0.1",
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post("/api/v1/audio")
 def get_audio(audio: UploadFile, question_prompt: str):
     resp = {}
+
     try:
         contents = audio.file.read()
         audio_file = open(audio.filename, 'wb')
@@ -42,6 +59,24 @@ def get_audio(audio: UploadFile, question_prompt: str):
         connectSig = hashlib.sha1(connectStr).hexdigest()
         startStr = (appKey + timestamp + userId + secretKey).encode("utf-8")
         startSig = hashlib.sha1(startStr).hexdigest()
+
+        if question_prompt:
+            req = {
+                "coreType": coreType,
+                "tokenId": "tokenId",
+                "test_type": test_type,
+                "task_type": task_type,
+                "question_prompt": question_prompt
+
+            }
+        else:
+            req = {
+                "coreType": coreType,
+                "tokenId": "tokenId",
+                "test_type": test_type,
+                "task_type": task_type
+
+            }
 
         params = {
             "connect": {
@@ -74,14 +109,7 @@ def get_audio(audio: UploadFile, question_prompt: str):
                         "sampleBytes": 2,
                         "sampleRate": audioSampleRate
                     },
-                    "request": {
-                        "coreType": coreType,
-                        "tokenId": "tokenId",
-                        "test_type": test_type,
-                        "task_type": task_type,
-                        "question_prompt":question_prompt
-
-                    }
+                    "request": req
 
                 }
             }
@@ -92,14 +120,12 @@ def get_audio(audio: UploadFile, question_prompt: str):
         headers = {"Request-Index": "0"}
         files = {"audio": open(audio.filename, 'rb')}
         resp_json = requests.post(url, data=data, headers=headers, files=files).json()
-        print("Fuck")
         resp["overall"] = resp_json["result"]["overall"]
         resp["fluency_coherence"] = resp_json["result"]["fluency_coherence"]
         resp["lexical_resource"] = resp_json["result"]["lexical_resource"]
         resp["grammar"] = resp_json["result"]["grammar"]
         resp["pronunciation"] = resp_json["result"]["pronunciation"]
         overall = resp["overall"]
-        print("yeahyeah")
         level = 'FAILED'
         if overall > 7:
             level = 'ADVANCED'
