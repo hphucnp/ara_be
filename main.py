@@ -157,8 +157,8 @@ def get_audio(audio: UploadFile, question_prompt: Optional[str] = None):
                 "ARA"
             )
 
-            sender = 'hphuc.np@hotmail.com'
-            receiver = 'ara.awaydigital@gmail.com'
+            sender = 'ara.away@hotmail.com'
+            receiver = 'thong.dinh@awaydigitalteams.com'
             msg = email.message_from_string(contents)
             msg['From'] = sender
             msg['To'] = receiver
@@ -170,7 +170,7 @@ def get_audio(audio: UploadFile, question_prompt: Optional[str] = None):
                 server.ehlo()
                 server.starttls()
                 server.ehlo()
-                server.login('hphuc.np@hotmail.com', 'Chienthang123')
+                server.login('ara.away@hotmail.com', 'ara12341234')
                 server.sendmail(sender, receiver, msg.as_string())
                 server.quit()
                 print("Successfully sent email")
