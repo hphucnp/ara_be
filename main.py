@@ -31,6 +31,7 @@ app.add_middleware(
 
 @app.post("/api/v1/audio")
 def get_audio(audio: UploadFile, question_prompt: Optional[str] = None):
+    question_prompt = None
     resp = {}
 
     try:
@@ -51,6 +52,7 @@ def get_audio(audio: UploadFile, question_prompt: Optional[str] = None):
         test_type = "ielts"  # Change the test_type according to your needs.
         task_type = "ielts_part1"  # Change the task_type according to your needs.
         audioType = audio.filename.split(".")[1]
+        print("audioType", audioType)
         # question_prompt="What did ben do yesterday?" # Change the question_prompt according to your needs.
         audioSampleRate = 16000
         userId = "guest"
@@ -121,11 +123,11 @@ def get_audio(audio: UploadFile, question_prompt: Optional[str] = None):
         headers = {"Request-Index": "0"}
         files = {"audio": open(audio.filename, 'rb')}
         resp_json = requests.post(url, data=data, headers=headers, files=files).json()
-        resp["overall"] = resp_json["result"]["overall"]
-        resp["fluency_coherence"] = resp_json["result"]["fluency_coherence"]
-        resp["lexical_resource"] = resp_json["result"]["lexical_resource"]
-        resp["grammar"] = resp_json["result"]["grammar"]
-        resp["pronunciation"] = resp_json["result"]["pronunciation"]
+        resp["overall"] = min(resp_json["result"]["overall"] + 2, 10)
+        resp["fluency_coherence"] = min(resp_json["result"]["fluency_coherence"] + 2, 10)
+        resp["lexical_resource"] = min(resp_json["result"]["lexical_resource"] + 2, 10)
+        resp["grammar"] = min(resp_json["result"]["grammar"] + 2, 10)
+        resp["pronunciation"] = min(resp_json["result"]["pronunciation"] + 2, 10)
         overall = resp["overall"]
         level = 'FAILED'
         if overall > 7:
