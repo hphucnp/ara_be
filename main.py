@@ -1,6 +1,8 @@
 import email
 import smtplib
 from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from typing import Optional
 
 from fastapi import FastAPI, UploadFile
@@ -31,7 +33,6 @@ app.add_middleware(
 
 @app.post("/api/v1/audio")
 def get_audio(audio: UploadFile, question_prompt: Optional[str] = None):
-    question_prompt = None
     resp = {}
 
     try:
@@ -145,28 +146,36 @@ def get_audio(audio: UploadFile, question_prompt: Optional[str] = None):
         resp["level"] = level
 
         try:
-            # yag = yagmail.SMTP('ara.awaydigital@gmail.com', oauth2_file="./client_secret.json")
             contents = (
                 "Dear Recruiters,\n"
                 "I hope this email finds you well.\n"
                 f"At {datetime.now().strftime('%M:%H %d/%m/%Y')}, your candidate has done the English Competency "
-                f"Test. Hence, I am writing to inform you that the English proficiency score has been received. Their "
-                f"score is {resp['overall']}, which is considered to be {resp['level']}.\n"
+                f"Test.\nHence, I am writing to inform you that the English proficiency score has been received.\n"
+                f"Their score is {resp['overall']}, which is considered to be {resp['level']}.\n"
                 "Thank you for your time and consideration.\n"
-                "Sincerely, \n"
+                "Sincerely,\n"
                 "ARA"
-            ).encode('utf-8').strip()
-            # yag.send('thong.dinh@awaydigitalteams.com', 'subject', contents)
-            receivers = ['ara.awaydigital@gmail.com']
-            sender = 'ara.away@hotmail.com'
+            )
 
-            # message = email.(contents)
+            sender = 'hphuc.np@hotmail.com'
+            receiver = 'ara.awaydigital@gmail.com'
+            msg = email.message_from_string(contents)
+            msg['From'] = sender
+            msg['To'] = receiver
+            msg['Subject'] = "Test Score"
 
             try:
-                smtp_obj = smtplib.SMTP('localhost:25')
-                smtp_obj.sendmail(sender, receivers, contents)
+                server = smtplib.SMTP('smtp.office365.com', 587)
+                server.connect("smtp.office365.com", 587)
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                server.login('hphuc.np@hotmail.com', 'Chienthang123')
+                server.sendmail(sender, receiver, msg.as_string())
+                server.quit()
                 print("Successfully sent email")
-            except smtplib.SMTPException:
+            except smtplib.SMTPException as e:
+                print(e)
                 print("Error: unable to send email")
         except Exception as e:
             print(e)
